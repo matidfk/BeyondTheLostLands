@@ -1,5 +1,27 @@
 EnemyOptions (
     health: HealthOptions ( max: 69 ),
     sprite: "character.png",
-    ai: "test.ai",
+    ai: Ai (
+        phases: {
+            "Start": Phase (
+                behaviors: [
+                    Idle,
+                ],
+                transitions: [
+                    (HealthLessThan (0.5), "Phase2")
+                ]),
+            "Phase2": Phase (
+                behaviors: [
+                    ChasePlayer (speed: 0.9)
+                ],
+                transitions: [
+                ]),
+        },
+        current: "Start"
+    ),
+    drop_table: DropTableOptions (
+        drops: [
+            ("test.item", 1.0)
+        ]
+    )
 )

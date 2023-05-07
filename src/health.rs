@@ -3,20 +3,31 @@ use serde;
 use serde::Deserialize;
 
 use crate::bullet::Team;
+use crate::enemy::drop_table::DropTable;
 use crate::FromOptions;
 
 pub struct HealthPlugin;
 
 impl Plugin for HealthPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(despawn_dead).register_type::<Health>();
+        app.add_system(despawn_dead)
+            .register_type::<Health>()
+            .add_event::<DeathEvent>();
     }
 }
 
-pub fn despawn_dead(mut commands: Commands, query: Query<(Entity, &Health)>) {
-    for (entity, health) in &query {
-        if health.current == 0 {
-            commands.entity(entity).despawn_recursive();
+pub struct DeathEvent(pub Entity);
+
+pub fn despawn_dead(
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut Health)>,
+    mut ev_death: EventWriter<DeathEvent>,
+) {
+    for (entity, mut health) in &mut query {
+        if health.current == 0 && !health.dead {
+            // commands.entity(entity).despawn_recursive();
+            ev_death.send(DeathEvent(entity));
+            health.dead = true;
         }
     }
 }
@@ -26,6 +37,7 @@ pub struct Health {
     max: u32,
     current: u32,
     pub team: Team,
+    dead: bool,
 }
 
 #[derive(Deserialize, TypeUuid)]
@@ -41,6 +53,7 @@ impl Health {
             max: health,
             current: health,
             team,
+            dead: false,
         }
     }
 
@@ -67,6 +80,7 @@ impl FromOptions<HealthOptions> for Health {
             max: options.max,
             current: options.max,
             team: Team::Enemy,
+            dead: false,
         }
     }
 }

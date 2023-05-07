@@ -16,26 +16,11 @@ impl Plugin for BulletPlugin {
         app.add_system(propagate_bullets)
             .add_system(despawn_bullets)
             .add_system(detect_collisions)
-            .add_startup_system(load_bullets)
             .add_asset::<BulletOptions>()
             .register_type::<Bullet>()
             .register_type::<BulletOptions>()
             .init_asset_loader::<BulletOptionsLoader>();
     }
-}
-
-#[derive(Resource)]
-pub struct LoadedAssets {
-    // Used for storing strong handles so that assets aren't unloaded
-    #[allow(dead_code)]
-    pub assets: Vec<HandleUntyped>,
-}
-
-pub fn load_bullets(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // let bullet_opt_handle: Handle<BulletOptions> = asset_server.load("bullet.bullet");
-    // commands.insert_resource(LoadedAssets {
-    //     assets: vec![bullet_opt_handle.clone_untyped()],
-    // });
 }
 
 #[derive(Default, Clone, PartialEq, Reflect, FromReflect, Deserialize, Debug)]

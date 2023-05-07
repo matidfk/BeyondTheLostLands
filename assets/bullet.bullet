@@ -1,6 +1,6 @@
 BulletOptions (
     damage: 40,
-    speed: 2.0,
+    speed: 6.0,
     lifetime: 2.0,
     sprite: "bullet.png",
     diagonal_sprite: true,

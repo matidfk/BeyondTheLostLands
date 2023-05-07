@@ -15,11 +15,10 @@ use std::collections::HashMap;
 pub struct AiPlugin;
 impl Plugin for AiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(do_behaviors)
-            .add_system(do_transitions)
-            .add_system(load_ais)
-            .add_asset::<Ai>()
-            .init_asset_loader::<AiLoader>();
+        app.add_system(do_behaviors).add_system(do_transitions);
+        // .add_system(load_ais)
+        // .add_asset::<Ai>()
+        // .init_asset_loader::<AiLoader>();
     }
 }
 
@@ -45,22 +44,22 @@ pub fn test_ai() -> Ai {
     }
 }
 
-pub fn load_ais(
-    mut commands: Commands,
-    query: Query<(Entity, &Handle<Ai>)>,
-    assets: Res<Assets<Ai>>,
-) {
-    for (entity, handle) in query.iter() {
-        if let Some(options) = assets.get(handle) {
-            commands
-                .entity(entity)
-                .insert(options.clone())
-                .remove::<Handle<Ai>>();
-        } else {
-            println!("this AI thang taking fookin aages to load init");
-        }
-    }
-}
+// pub fn load_ais(
+//     mut commands: Commands,
+//     query: Query<(Entity, &Handle<Ai>)>,
+//     assets: Res<Assets<Ai>>,
+// ) {
+//     for (entity, handle) in query.iter() {
+//         if let Some(ai) = assets.get(handle) {
+//             commands
+//                 .entity(entity)
+//                 .insert(ai.clone())
+//                 .remove::<Handle<Ai>>();
+//         } else {
+//             println!("this AI thang taking fookin aages to load init");
+//         }
+//     }
+// }
 
 #[derive(Component, Deserialize, TypeUuid, Clone)]
 #[uuid = "b08c2b7c-a927-46d6-9344-755203047812"]
@@ -97,4 +96,4 @@ pub struct Phase {
     pub transitions: Vec<(Transition, String)>,
 }
 
-loader!(Ai, AiLoader, &["ai"]);
+// loader!(Ai, AiLoader, &["ai"]);

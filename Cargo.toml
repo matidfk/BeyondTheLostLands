@@ -8,5 +8,6 @@ edition = "2021"
 [dependencies]
 bevy = { version = "0.10.1", features = ["dynamic_linking"] }
 bevy-inspector-egui = "0.18.3"
+rand = "0.8.5"
 ron = "0.8.0"
 serde = { version = "1.0.162", features = ["derive"] }

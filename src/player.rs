@@ -6,6 +6,10 @@ use crate::{
     bullet::{BulletBundle, BulletOptions, Team},
     camera::DiagonalCameraBundle,
     health::Health,
+    items::{
+        inventory::Inventory,
+        item::{EquipableType, Item, ItemOptions, ItemType},
+    },
 };
 
 #[derive(Component)]
@@ -17,7 +21,22 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(spawn_player)
             .add_system(player_shooting)
+            .add_system(inv_debug)
             .add_system(player_movement);
+    }
+}
+
+pub fn inv_debug(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut query: Query<&mut Inventory, With<Player>>,
+    asset_server: Res<AssetServer>,
+) {
+    if keyboard_input.just_pressed(KeyCode::B) {
+        query.single_mut().contents[0] = Some(asset_server.load("weapon.item"))
+    }
+
+    if keyboard_input.just_pressed(KeyCode::C) {
+        dbg!(query.single_mut());
     }
 }
 
@@ -28,6 +47,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             Player,
             Health::new(100, Team::Player),
             Name::new("Player"),
+            Inventory::new(),
         ))
         .with_children(|parent| {
             // camera
@@ -113,8 +133,9 @@ pub fn player_shooting(
     _time: Res<Time>,
     mut commands: Commands,
     // mut query: Query<&mut Shooting, With<Player>>,
-    query: Query<&Transform, With<Player>>,
+    query: Query<(&Inventory, &Transform), With<Player>>,
     asset_server: Res<AssetServer>,
+    assets: Res<Assets<ItemOptions>>,
     bullets: Res<Assets<BulletOptions>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Space) {
@@ -123,23 +144,41 @@ pub fn player_shooting(
         //         shooting.shoot(bullet_options.clone(), PI / 2.0);
         //     }
         // }
-        for transform in &query {
-            commands.spawn(BulletBundle::new(
-                BulletOptions {
-                    damage: 40,
-                    speed: 3.0,
-                    lifetime: 5.0,
-                    sprite: "bullet.png".into(),
-                    diagonal_sprite: true,
-                    team: Team::Player,
-                },
-                transform.rotation.to_euler(EulerRot::XYZ).1,
-                transform.translation.truncate(),
-                &asset_server,
-            ));
-            // if let Some(bullet_options) = bullets.get(&asset_server.load("bullet.bullet")) {
-            //     shooting.shoot(bullet_options.clone(), PI / 2.0);
-            // }
+        let (inventory, transform) = query.single();
+        if let Some(handle) = &inventory.contents[0] {
+            let item = assets.get(&handle).unwrap();
+            if let ItemType::Equipable(equipable) = &item.item_type {
+                if let EquipableType::Weapon(bullet_options) = equipable {
+                    commands.spawn(BulletBundle::new(
+                        bullets
+                            .get(&asset_server.load(bullet_options))
+                            .unwrap()
+                            .clone(),
+                        // bullet_options.clone(),
+                        0.0,
+                        transform.translation.truncate(),
+                        &asset_server,
+                    ));
+                }
+            }
         }
+        // for transform in &query {
+        //     commands.spawn(BulletBundle::new(
+        //         BulletOptions {
+        //             damage: 40,
+        //             speed: 3.0,
+        //             lifetime: 5.0,
+        //             sprite: "bullet.png".into(),
+        //             diagonal_sprite: true,
+        //             team: Team::Player,
+        //         },
+        //         transform.rotation.to_euler(EulerRot::XYZ).1,
+        //         transform.translation.truncate(),
+        //         &asset_server,
+        //     ));
+        // if let Some(bullet_options) = bullets.get(&asset_server.load("bullet.bullet")) {
+        //     shooting.shoot(bullet_options.clone(), PI / 2.0);
+        // }
+        // }
     }
 }
