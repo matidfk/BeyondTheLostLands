@@ -1,0 +1,5 @@
+EnemyOptions (
+    health: HealthOptions ( max: 69 ),
+    sprite: "character.png",
+    ai: "test.ai",
+)
