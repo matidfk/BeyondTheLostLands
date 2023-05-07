@@ -1,0 +1,5 @@
+ItemOptions (
+    name: "New item 2",
+    sprite: "bullet.png",
+    item_type: Regular,
+)

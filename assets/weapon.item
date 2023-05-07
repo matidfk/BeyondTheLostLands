@@ -1,0 +1,5 @@
+ItemOptions (
+    name: "TEST WEAPON",
+    sprite: "bullet.png",
+    item_type: Equipable ( Weapon ( "bullet.bullet" ) ),
+)
