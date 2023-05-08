@@ -8,7 +8,7 @@ use crate::{
     health::Health,
     items::{
         inventory::Inventory,
-        item::{EquipableType, Item, ItemOptions, ItemType},
+        item::{EquipableType, Item, ItemType},
     },
 };
 
@@ -30,13 +30,19 @@ pub fn inv_debug(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<&mut Inventory, With<Player>>,
     asset_server: Res<AssetServer>,
+    mut assets: ResMut<Assets<Item>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::B) {
-        query.single_mut().contents[0] = Some(asset_server.load("weapon.item"))
+        let item_handle = crate::enemy::SHandle::Loaded(asset_server.load("weapon.item"));
+        query.single_mut().contents[0] = Some(item_handle);
     }
 
     if keyboard_input.just_pressed(KeyCode::C) {
-        dbg!(query.single_mut());
+        if let Some(handle) = &query.single().contents[0] {
+            dbg!(handle);
+        } else {
+            println!("NONE");
+        }
     }
 }
 
@@ -135,26 +141,19 @@ pub fn player_shooting(
     // mut query: Query<&mut Shooting, With<Player>>,
     query: Query<(&Inventory, &Transform), With<Player>>,
     asset_server: Res<AssetServer>,
-    assets: Res<Assets<ItemOptions>>,
+    mut assets: ResMut<Assets<Item>>,
     bullets: Res<Assets<BulletOptions>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Space) {
-        // for mut shooting in &mut query {
-        //     if let Some(bullet_options) = bullets.get(&asset_server.load("bullet.bullet")) {
-        //         shooting.shoot(bullet_options.clone(), PI / 2.0);
-        //     }
-        // }
         let (inventory, transform) = query.single();
         if let Some(handle) = &inventory.contents[0] {
-            let item = assets.get(&handle).unwrap();
-            if let ItemType::Equipable(equipable) = &item.item_type {
-                if let EquipableType::Weapon(bullet_options) = equipable {
+            dbg!(handle);
+            let item = assets.get_mut(&handle.unwrap()).unwrap();
+            if let ItemType::Equipable(equipable) = &mut item.item_type {
+                if let EquipableType::Weapon(bullet_handle) = equipable {
+                    bullet_handle.load(&asset_server);
                     commands.spawn(BulletBundle::new(
-                        bullets
-                            .get(&asset_server.load(bullet_options))
-                            .unwrap()
-                            .clone(),
-                        // bullet_options.clone(),
+                        bullets.get(&bullet_handle.unwrap()).unwrap().clone(),
                         0.0,
                         transform.translation.truncate(),
                         &asset_server,

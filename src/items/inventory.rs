@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 
-use super::item::{Item, ItemOptions};
+use crate::enemy::SHandle;
 
-#[derive(Component, Debug)]
+use super::item::Item;
+
+#[derive(Component)]
 pub struct Inventory {
-    pub contents: [Option<Handle<ItemOptions>>; 8],
+    pub contents: [Option<SHandle<Item>>; 8],
 }
 
 impl Inventory {

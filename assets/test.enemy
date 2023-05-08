@@ -1,6 +1,6 @@
 EnemyOptions (
-    health: HealthOptions ( max: 69 ),
-    sprite: "character.png",
+    health: Health ( max: 69, current: 69, team: Enemy ),
+    sprite: Serialized( "bullet.png" ),
     ai: Ai (
         phases: {
             "Start": Phase (
@@ -19,9 +19,9 @@ EnemyOptions (
         },
         current: "Start"
     ),
-    drop_table: DropTableOptions (
+    drop_table: DropTable (
         drops: [
-            ("test.item", 1.0)
+            (Serialized("test.item"), 1.0)
         ]
     )
 )

@@ -8,7 +8,7 @@ use bevy::{
 use bevy_inspector_egui::InspectorOptions;
 use serde::Deserialize;
 
-use crate::{billboard_sprite::SPRITE8, health::Health, loader, FromOptions};
+use crate::{billboard_sprite::SPRITE8, enemy::SHandle, health::Health, loader};
 
 pub struct BulletPlugin;
 impl Plugin for BulletPlugin {
@@ -36,14 +36,14 @@ impl Default for BulletOptions {
             damage: 40,
             speed: 3.0,
             lifetime: 1.0,
-            sprite: "bullet.png".into(),
+            sprite: SHandle::Serialized("bullet.png".into()),
             team: Team::default(),
             diagonal_sprite: false,
         }
     }
 }
 
-#[derive(Component, InspectorOptions, Reflect)]
+#[derive(Component, InspectorOptions, Reflect, Debug)]
 pub struct Bullet {
     pub damage: u32,
     pub speed: f32,
@@ -60,7 +60,7 @@ pub struct BulletBundle {
 
 impl BulletBundle {
     pub fn new(
-        bullet_options: BulletOptions,
+        mut bullet_options: BulletOptions,
         direction: f32,
         position: Vec2,
         asset_server: &Res<AssetServer>,
@@ -70,9 +70,11 @@ impl BulletBundle {
             sprite_rotation -= PI / 4.0;
         }
 
+        bullet_options.sprite.load(&asset_server);
+
         Self {
             sprite_bundle: SpriteBundle {
-                texture: asset_server.load(bullet_options.sprite),
+                texture: bullet_options.sprite.unwrap(),
                 transform: Transform::from_translation(position.extend(0.5))
                     .with_rotation(Quat::from_rotation_z(sprite_rotation)),
                 sprite: SPRITE8,
@@ -151,7 +153,7 @@ pub struct BulletOptions {
     pub damage: u32,
     pub speed: f32,
     pub lifetime: f32,
-    pub sprite: String,
+    pub sprite: SHandle<Image>,
     pub diagonal_sprite: bool,
     pub team: Team,
 }

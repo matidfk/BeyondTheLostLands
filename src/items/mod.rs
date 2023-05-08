@@ -3,27 +3,27 @@ pub mod item;
 
 use bevy::prelude::*;
 
-use crate::{billboard_sprite::SPRITE8, player::Player};
+use crate::{billboard_sprite::SPRITE8, enemy::SHandle, player::Player};
 
 use self::{
     inventory::Inventory,
-    item::{Item, ItemOptions, ItemOptionsLoader},
+    item::{Item, ItemLoader},
 };
 
 pub struct ItemsPlugin;
 
 impl Plugin for ItemsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_asset::<ItemOptions>()
-            .init_asset_loader::<ItemOptionsLoader>()
-            .register_type::<DroppedItem>()
+        app.add_asset::<Item>()
+            .init_asset_loader::<ItemLoader>()
+            // .register_type::<DroppedItem>()
             .add_system(pickup_dropped_items);
     }
 }
 
-#[derive(Component, Reflect)]
+#[derive(Component)]
 pub struct DroppedItem {
-    pub item: Handle<ItemOptions>,
+    pub item: SHandle<Item>,
 }
 
 // #[derive(Bundle)]

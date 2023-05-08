@@ -13,7 +13,7 @@ use bullet::BulletPlugin;
 use camera::DiagonalProjectionPlugin;
 use enemy::{Ai, EnemyBundle, EnemyPlugin};
 use health::HealthPlugin;
-use items::{item::ItemOptions, ItemsPlugin};
+use items::ItemsPlugin;
 use player::PlayerPlugin;
 use serde::{de::DeserializeOwned, Deserialize, Deserializer};
 fn main() {
@@ -41,7 +41,7 @@ fn main() {
 fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let handle = asset_server.load::<Ai, _>("test.ai");
     Box::leak(Box::new(handle.clone()));
-    Box::leak(Box::new(asset_server.load::<ItemOptions, _>("test.item")));
+    // Box::leak(Box::new(asset_server.load::<ItemOptions, _>("test.item")));
 
     commands.spawn((
         EnemyBundle {
@@ -51,12 +51,6 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
         Name::new("TEST ENTITY"),
         handle,
     ));
-}
-
-pub trait FromOptions<O> {
-    // type Args;
-    // fn from_options(options: &O, args: Self::Args) -> Self;
-    fn from_options(options: &O) -> Self;
 }
 
 // pub struct Jandle<T: bevy::asset::Asset>(Handle<T>);

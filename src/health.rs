@@ -4,7 +4,6 @@ use serde::Deserialize;
 
 use crate::bullet::Team;
 use crate::enemy::drop_table::DropTable;
-use crate::FromOptions;
 
 pub struct HealthPlugin;
 
@@ -32,18 +31,14 @@ pub fn despawn_dead(
     }
 }
 
-#[derive(Component, Reflect)]
+#[derive(Component, Reflect, Deserialize, TypeUuid, Clone)]
+#[uuid = "c2036e7e-c764-11ed-afa1-0242ac120002"]
 pub struct Health {
     max: u32,
     current: u32,
     pub team: Team,
+    #[serde(skip_deserializing)]
     dead: bool,
-}
-
-#[derive(Deserialize, TypeUuid)]
-#[uuid = "c2036e7e-c764-11ed-afa1-0242ac120002"]
-pub struct HealthOptions {
-    pub max: u32,
 }
 
 #[allow(dead_code)]
@@ -71,16 +66,5 @@ impl Health {
 
     pub fn frac(&self) -> f32 {
         self.current as f32 / self.max as f32
-    }
-}
-
-impl FromOptions<HealthOptions> for Health {
-    fn from_options(options: &HealthOptions) -> Self {
-        Self {
-            max: options.max,
-            current: options.max,
-            team: Team::Enemy,
-            dead: false,
-        }
     }
 }
