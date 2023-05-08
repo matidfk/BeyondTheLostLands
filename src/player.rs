@@ -10,6 +10,7 @@ use crate::{
         inventory::Inventory,
         item::{EquipableType, Item, ItemType},
     },
+    shandle::SHandle,
 };
 
 #[derive(Component)]
@@ -33,8 +34,7 @@ pub fn inv_debug(
     mut assets: ResMut<Assets<Item>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::B) {
-        let item_handle = crate::enemy::SHandle::Loaded(asset_server.load("weapon.item"));
-        query.single_mut().contents[0] = Some(item_handle);
+        query.single_mut().contents[0] = Some(SHandle::Loaded(asset_server.load("weapon.item")));
     }
 
     if keyboard_input.just_pressed(KeyCode::C) {
@@ -146,12 +146,11 @@ pub fn player_shooting(
 ) {
     if keyboard_input.just_pressed(KeyCode::Space) {
         let (inventory, transform) = query.single();
+        // inv 0 is something
         if let Some(handle) = &inventory.contents[0] {
-            dbg!(handle);
             let item = assets.get_mut(&handle.unwrap()).unwrap();
             if let ItemType::Equipable(equipable) = &mut item.item_type {
                 if let EquipableType::Weapon(bullet_handle) = equipable {
-                    bullet_handle.load(&asset_server);
                     commands.spawn(BulletBundle::new(
                         bullets.get(&bullet_handle.unwrap()).unwrap().clone(),
                         0.0,
@@ -161,23 +160,5 @@ pub fn player_shooting(
                 }
             }
         }
-        // for transform in &query {
-        //     commands.spawn(BulletBundle::new(
-        //         BulletOptions {
-        //             damage: 40,
-        //             speed: 3.0,
-        //             lifetime: 5.0,
-        //             sprite: "bullet.png".into(),
-        //             diagonal_sprite: true,
-        //             team: Team::Player,
-        //         },
-        //         transform.rotation.to_euler(EulerRot::XYZ).1,
-        //         transform.translation.truncate(),
-        //         &asset_server,
-        //     ));
-        // if let Some(bullet_options) = bullets.get(&asset_server.load("bullet.bullet")) {
-        //     shooting.shoot(bullet_options.clone(), PI / 2.0);
-        // }
-        // }
     }
 }

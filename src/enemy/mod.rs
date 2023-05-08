@@ -1,16 +1,23 @@
-mod ai;
+pub mod ai;
 pub mod drop_table;
 
-use std::fmt::Debug;
-
 pub use ai::*;
-use bevy::{prelude::*, reflect::TypeUuid};
+use async_trait::async_trait;
+use bevy::{
+    asset::{AssetPath, LoadContext, LoadedAsset},
+    prelude::*,
+    reflect::TypeUuid,
+    render::texture::CompressedImageFormats,
+};
 use serde::Deserialize;
+use std::{fmt::Debug, path::Path};
 
 use crate::{
     billboard_sprite::{BillboardSpriteBundle, SPRITE8},
     health::Health,
+    items::item::Item,
     loader,
+    shandle::{load_ron, load_sprite, store_ron, SHandle, SHandleLoad},
 };
 
 use self::drop_table::{DropTable, DropTablePlugin};
@@ -26,7 +33,7 @@ impl Plugin for EnemyPlugin {
     }
 }
 
-#[derive(Deserialize, TypeUuid)]
+#[derive(Deserialize, TypeUuid, Reflect, FromReflect, Debug)]
 #[uuid = "57422828-c764-11ed-afa1-0242ac120002"]
 pub struct EnemyOptions {
     pub health: Health,
@@ -35,7 +42,27 @@ pub struct EnemyOptions {
     pub drop_table: DropTable,
 }
 
-loader!(EnemyOptions, EnemyOptionsLoader, &["enemy"]);
+#[derive(Default)]
+pub struct EnemyOptionsLoader;
+
+impl bevy::asset::AssetLoader for EnemyOptionsLoader {
+    fn load<'a>(
+        &'a self,
+        bytes: &'a [u8],
+        load_context: &'a mut bevy::asset::LoadContext,
+    ) -> bevy::utils::BoxedFuture<'a, Result<(), bevy::asset::Error>> {
+        Box::pin(async move {
+            let mut shandle: SHandle<EnemyOptions> =
+                SHandle::Serialized(load_context.path().to_string_lossy().to_string());
+            shandle.shandle_load(load_context, true).await?;
+
+            Ok(())
+        })
+    }
+    fn extensions(&self) -> &[&str] {
+        &["enemy"]
+    }
+}
 
 #[derive(Bundle)]
 pub struct EnemyBundle {
@@ -51,39 +78,19 @@ pub fn load_enemies(
 ) {
     for (entity, handle) in query.iter() {
         if let Some(options) = assets.get_mut(handle) {
-            options.sprite.load(&asset_server);
-
-            commands
-                .entity(entity)
-                .insert((
-                    options.health.clone(),
-                    BillboardSpriteBundle::new_anchored(options.sprite.unwrap()),
-                    options.drop_table.clone(),
-                ))
-                .remove::<Handle<EnemyOptions>>();
-        }
-    }
-}
-
-#[derive(Deserialize, TypeUuid, Clone, Reflect, Debug, FromReflect)]
-#[uuid = "57422828-c764-11ed-aca1-0242ac120002"]
-pub enum SHandle<T: bevy::asset::Asset + Reflect + Debug + FromReflect> {
-    Serialized(String),
-    #[serde(skip_deserializing)]
-    Loaded(Handle<T>),
-}
-
-impl<T: bevy::asset::Asset + Reflect + Debug + FromReflect> SHandle<T> {
-    pub fn load(&mut self, asset_server: &AssetServer) {
-        if let SHandle::Serialized(path) = self {
-            *self = SHandle::Loaded(asset_server.load(path.clone()));
-        }
-    }
-
-    pub fn unwrap(&self) -> Handle<T> {
-        match self {
-            SHandle::Serialized(_) => panic!("SHandle not loaded!"),
-            SHandle::Loaded(handle) => handle.clone(),
+            if let SHandle::Loaded(sprite_handle) = &options.sprite {
+                commands
+                    .entity(entity)
+                    .insert((
+                        options.health.clone(),
+                        BillboardSpriteBundle::new_anchored(sprite_handle.clone()),
+                        options.drop_table.clone(),
+                        options.ai.clone(),
+                    ))
+                    .remove::<Handle<EnemyOptions>>();
+            } else {
+                options.sprite.load(&asset_server);
+            }
         }
     }
 }

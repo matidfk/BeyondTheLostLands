@@ -8,7 +8,7 @@ use bevy::{
 use bevy_inspector_egui::InspectorOptions;
 use serde::Deserialize;
 
-use crate::{billboard_sprite::SPRITE8, enemy::SHandle, health::Health, loader};
+use crate::{billboard_sprite::SPRITE8, health::Health, loader, shandle::SHandle};
 
 pub struct BulletPlugin;
 impl Plugin for BulletPlugin {
@@ -18,6 +18,7 @@ impl Plugin for BulletPlugin {
             .add_system(detect_collisions)
             .add_asset::<BulletOptions>()
             .register_type::<Bullet>()
+            .register_asset_reflect::<BulletOptions>()
             .register_type::<BulletOptions>()
             .init_asset_loader::<BulletOptionsLoader>();
     }
@@ -63,14 +64,12 @@ impl BulletBundle {
         mut bullet_options: BulletOptions,
         direction: f32,
         position: Vec2,
-        asset_server: &Res<AssetServer>,
+        asset_server: &AssetServer,
     ) -> Self {
         let mut sprite_rotation = direction;
         if bullet_options.diagonal_sprite {
             sprite_rotation -= PI / 4.0;
         }
-
-        bullet_options.sprite.load(&asset_server);
 
         Self {
             sprite_bundle: SpriteBundle {

@@ -1,7 +1,10 @@
 use crate::{
     billboard_sprite::SPRITE8,
     health::DeathEvent,
-    items::{item::Item, DroppedItem},
+    items::{
+        dropped_item::{DroppedItem, DroppedItemBundle},
+        item::Item,
+    },
 };
 use bevy::{prelude::*, reflect::TypeUuid};
 use rand::prelude::*;
@@ -18,7 +21,8 @@ impl Plugin for DropTablePlugin {
     }
 }
 
-#[derive(Component, Deserialize, Clone, Reflect)]
+#[derive(Component, Clone, Reflect, TypeUuid, Deserialize, Debug, FromReflect)]
+#[uuid = "0222cefa-f22c-4347-8166-38831647325c"]
 pub struct DropTable {
     pub drops: Vec<(SHandle<Item>, f32)>,
 }
@@ -39,34 +43,13 @@ pub fn drop_dead_entity_tables(
     query: Query<(&DropTable, &Transform)>,
     mut ev_death: EventReader<DeathEvent>,
     assets: Res<Assets<Item>>,
-    asset_server: Res<AssetServer>,
 ) {
     for ev in ev_death.iter() {
         if let Ok((drop_table, transform)) = query.get(ev.0) {
             for item in drop_table.get_items() {
-                let item_options = assets.get(&item.unwrap()).unwrap();
-                commands.spawn((
-                    SpriteBundle {
-                        sprite: SPRITE8,
-                        transform: Transform::from_translation(transform.translation),
-                        texture: item_options.sprite.unwrap(),
-                        ..default()
-                    },
-                    DroppedItem { item },
-                ));
+                dbg!(&item);
+                commands.spawn(DroppedItemBundle::new(item, transform.translation, &assets));
             }
         }
     }
 }
-
-// #[derive(Deserialize, TypeUuid)]
-// #[uuid = "0635cefa-f22c-4347-8166-38831647325c"]
-// pub struct DropTableOptions {
-//     pub drops: Vec<(String, f32)>,
-// }
-
-// #[derive(Deserialize, TypeUuid)]
-// #[uuid = "1635cefa-f22c-4347-8166-38831647325c"]
-// pub struct NewDropTable {
-//     pub drops: Vec<(Jandle<ItemOptions>, f32)>,
-// }

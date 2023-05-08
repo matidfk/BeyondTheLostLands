@@ -1,5 +1,5 @@
 Item (
     name: "TEST WEAPON",
-    sprite: Serialized ("bullet.png"),
+    sprite: Serialized("bullet.png"),
     item_type: Equipable ( Weapon ( Serialized("bullet.bullet") ) ),
 )

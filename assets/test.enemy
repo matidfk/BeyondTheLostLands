@@ -1,6 +1,6 @@
 EnemyOptions (
     health: Health ( max: 69, current: 69, team: Enemy ),
-    sprite: Serialized( "bullet.png" ),
+    sprite:  Serialized ("bullet.png") ,
     ai: Ai (
         phases: {
             "Start": Phase (
@@ -12,7 +12,8 @@ EnemyOptions (
                 ]),
             "Phase2": Phase (
                 behaviors: [
-                    ChasePlayer (speed: 0.9)
+                    ChasePlayer (speed: 0.9),
+                    ShootAtPlayer ( bullet: Serialized("bullet.bullet"), interval: 1.0 ),
                 ],
                 transitions: [
                 ]),

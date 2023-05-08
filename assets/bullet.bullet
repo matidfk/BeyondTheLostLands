@@ -2,7 +2,7 @@ BulletOptions (
     damage: 40,
     speed: 6.0,
     lifetime: 2.0,
-    sprite: "bullet.png",
+    sprite: Serialized("bullet.png"),
     diagonal_sprite: true,
     team: Player,
 )

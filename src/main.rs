@@ -5,8 +5,9 @@ mod enemy;
 mod health;
 mod items;
 mod player;
+pub mod shandle;
 
-use bevy::{prelude::*, reflect::TypeUuid};
+use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use billboard_sprite::BillboardSpritePlugin;
 use bullet::BulletPlugin;
@@ -15,7 +16,6 @@ use enemy::{Ai, EnemyBundle, EnemyPlugin};
 use health::HealthPlugin;
 use items::ItemsPlugin;
 use player::PlayerPlugin;
-use serde::{de::DeserializeOwned, Deserialize, Deserializer};
 fn main() {
     App::new()
         .add_plugins(
@@ -52,23 +52,6 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
         handle,
     ));
 }
-
-// pub struct Jandle<T: bevy::asset::Asset>(Handle<T>);
-
-// #[derive(Deserialize, TypeUuid)]
-// #[uuid = "1635cefa-f22c-4347-8166-38831647325c"]
-// pub enum Jandle<T: bevy::asset::Asset> {
-//     Unloaded(String),
-//     #[serde(deserialize_with = "deserialize_handle")]
-//     Loaded(Handle<T>),
-// }
-//
-// pub fn deserialize_handle<'de, D>(d: D) -> Result<String, D::Error>
-// where
-//     D: Deserializer<'de>,
-// {
-//     d.deserialize_str(visitor)
-// }
 
 // macro to implement an asset loader
 // TODO: move somewhere lol

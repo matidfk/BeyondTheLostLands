@@ -108,7 +108,22 @@ fn sort_y(
             camera_transform,
             global_transform.to_scale_rotation_translation().2,
         ) {
-            transform.translation.z = ndc.y * -0.001;
+            transform.translation.z += ndc.y * -0.001;
+        }
+    }
+}
+
+fn unsort_y(
+    mut query: Query<(&mut Transform, &GlobalTransform), With<Sprite>>,
+    camera: Query<(&Camera, &GlobalTransform)>,
+) {
+    let (camera, camera_transform) = camera.single();
+    for (mut transform, global_transform) in query.iter_mut() {
+        if let Some(ndc) = camera.world_to_ndc(
+            camera_transform,
+            global_transform.to_scale_rotation_translation().2,
+        ) {
+            transform.translation.z -= ndc.y * 0.001;
         }
     }
 }
@@ -118,6 +133,8 @@ pub struct DiagonalProjectionPlugin;
 impl Plugin for DiagonalProjectionPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(CameraProjectionPlugin::<DiagonalProjection>::default())
-            .add_system(sort_y);
+            // TODO: run just before render, undo after render
+            .add_system(sort_y.in_base_set(CoreSet::Last))
+            .add_system(unsort_y.in_base_set(CoreSet::First));
     }
 }

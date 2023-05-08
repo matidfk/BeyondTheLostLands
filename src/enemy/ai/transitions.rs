@@ -13,7 +13,7 @@ pub fn do_transitions(mut query: Query<(&mut Ai, &Health)>) {
     }
 }
 
-#[derive(Component, Deserialize, TypeUuid, Clone)]
+#[derive(Component, Deserialize, TypeUuid, Clone, Debug, FromReflect, Reflect)]
 #[uuid = "b08c2b7c-a927-46d6-9344-755203047814"]
 pub enum Transition {
     HealthLessThan(f32),

@@ -1,10 +1,10 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, reflect};
 
-use crate::enemy::SHandle;
+use crate::shandle::SHandle;
 
 use super::item::Item;
 
-#[derive(Component)]
+#[derive(Component, Debug, Reflect, FromReflect)]
 pub struct Inventory {
     pub contents: [Option<SHandle<Item>>; 8],
 }

@@ -31,7 +31,7 @@ pub fn despawn_dead(
     }
 }
 
-#[derive(Component, Reflect, Deserialize, TypeUuid, Clone)]
+#[derive(Component, Reflect, Deserialize, TypeUuid, Clone, Debug, FromReflect)]
 #[uuid = "c2036e7e-c764-11ed-afa1-0242ac120002"]
 pub struct Health {
     max: u32,

@@ -1,5 +1,5 @@
-mod behaviors;
-mod transitions;
+pub mod behaviors;
+pub mod transitions;
 
 use self::{
     behaviors::{do_behaviors, Behavior, BehaviorInfo},
@@ -61,7 +61,7 @@ pub fn test_ai() -> Ai {
 //     }
 // }
 
-#[derive(Component, Deserialize, TypeUuid, Clone)]
+#[derive(Component, Deserialize, TypeUuid, Clone, FromReflect, Reflect, Debug)]
 #[uuid = "b08c2b7c-a927-46d6-9344-755203047812"]
 pub struct Ai {
     pub phases: HashMap<String, Phase>,
@@ -89,7 +89,7 @@ impl Ai {
     }
 }
 
-#[derive(Component, Deserialize, TypeUuid, Clone)]
+#[derive(Component, Deserialize, TypeUuid, Clone, Reflect, FromReflect, Debug)]
 #[uuid = "b08c2b7c-a927-46d6-9344-755203047813"]
 pub struct Phase {
     pub behaviors: Vec<Behavior>,
